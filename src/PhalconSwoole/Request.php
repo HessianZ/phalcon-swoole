@@ -258,7 +258,32 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getClientAddress($trustForwardedHeader = false)
     {
-        return $this->request->server['remote_addr'];
+        $address = null;
+
+        /**
+         * Proxies uses this IP
+         */
+        if ($trustForwardedHeader) {
+            if (isset($this->request->header['x_forwarded_for'])) {
+                $address = $this->request->header['x_forwarded_for'];
+            } else if (isset($this->request->header['client_ip'])) {
+                $address = $this->request->header['client_ip'];
+            }
+		}
+
+        if ($address === null) {
+            $address = $this->request->server['remote_addr'];
+		}
+
+        if ($address) {
+            if (strpos($address, ',') !== false) {
+                return explode(',', $address)[0];
+            }
+
+            return $address;
+        }
+
+		return false;
     }
 
     /**
