@@ -21,7 +21,7 @@ You need to add these lines below to `composer.json`
 ## Most important
 
 ```php
-$di = new Di($request, $response, $config);
+$di = new Di($request, $response);
 $app->setDI($di);
 
 ```
@@ -52,7 +52,7 @@ $serv->on('Request', function($request, $response) use($config) {
     try {
         $app = new MicroApp();
 
-        $di = new Di($request, $response, $config);
+        $di = new Di($request, $response);
         $app->setDI($di);
 
         $app->get('/', function() use($app) {
