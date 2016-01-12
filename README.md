@@ -1,9 +1,32 @@
-# phalcon-swoole
-A toolkit for integrate Phalcon in swoole.
+# Phalcon-Swoole
+
+
+## Phalcon Framework
+Phalcon is an open source web framework delivered as a C extension for the PHP language providing high performance and lower resource consumption.
+
+* Homepage: https://phalconphp.com
+* Github: https://github.com/phalcon/cphalcon
+
+
+## Swoole
+Swoole is an event-based & concurrent framework for internet applications, written in C, for PHP.
+
+* Homepage: http://www.swoole.com
+* Github: https://github.com/swoole/swoole-src
+
+
+## Todolist
+- [x] 路由解析
+- [ ] 会话隔离
+    - [x] Get
+    - [x] Post
+    - [x] Cookie
+    - [ ] Session
+- [ ] 数据库连接等资源的复用和释放处理策略？
 
 
 ## Usage
-You need to add these lines below to `composer.json`
+You need to add these lines below to `composer.json` and run `composer update`.
 ```
 {
     "require": {
