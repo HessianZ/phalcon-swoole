@@ -1,10 +1,6 @@
 {
     "name": "HessianZ/phalcon-swoole",
     "version": "0.1.1",
-    "dist": {
-        "url": "https://github.com/HessianZ/phalcon-swoole/packages/phalcon-swoole-0.1.1.zip",
-        "type": "zip"
-    },
     "require": {
         "php": ">=5.6.0",
         "ext-phalcon": ">=2.0",
@@ -15,5 +11,20 @@
             "HessianZ\\PhalconSwoole\\": "src/PhalconSwoole/"
         }
     },
-    "minimum-stability": "dev"
+    "authors": [
+        {
+            "name": "Hessian Chow",
+            "email": "hess.4x@gmail.com",
+            "homepage": "http://hessian.cn"
+        }
+    ],
+    "keywords": [
+        "php",
+        "phalcon",
+        "swoole"
+    ],
+    "minimum-stability": "dev",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/HessianZ/phalcon-swoole"
 }
