@@ -1,16 +1,11 @@
-# phalcon-swoole
-A toolkit for integrate Phalcon in swoole.
+<?php
+/**
+ * Created by PhpStorm.
+ * User: hessian
+ * Date: 1/8/16
+ * Time: 11:39
+ */
 
-## Most important
-
-```php
-$di = new Di($request, $response, $config);
-$app->setDI($di);
-
-```
-
-## Example
-```php
 use Phalcon\Http\ResponseInterface;
 
 use HessianZ\PhalconSwoole\MicroApp;
@@ -63,5 +58,3 @@ $serv->on('Request', function($request, $response) use($config) {
 });
 
 $serv->start();
-
-```
