@@ -1,6 +1,23 @@
 # phalcon-swoole
 A toolkit for integrate Phalcon in swoole.
 
+
+## Usage
+You need to add these lines below to `composer.json`
+```
+{
+    "require": {
+        "HessianZ/phalcon-swoole": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/HessianZ/phalcon-swoole"
+        }
+    ]
+}
+```
+
 ## Most important
 
 ```php
