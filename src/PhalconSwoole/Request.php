@@ -14,6 +14,7 @@ use Phalcon\Http\RequestInterface;
 class Request implements  RequestInterface, InjectionAwareInterface
 {
     private $_dependencyInjector;
+    private $_filter;
 
     /**
      * @var \swoole_http_request
@@ -61,9 +62,9 @@ class Request implements  RequestInterface, InjectionAwareInterface
      * @param mixed $defaultValue
      * @return mixed
      */
-    public function get($name = null, $filters = null, $defaultValue = null)
+    public function get($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        return $this->request->get[$name];
+        return $this->getQuery($name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -74,9 +75,9 @@ class Request implements  RequestInterface, InjectionAwareInterface
      * @param mixed $defaultValue
      * @return mixed
      */
-    public function getPost($name = null, $filters = null, $defaultValue = null)
+    public function getPost($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        return $this->request->post[$name];
+        return $this->getHelper($this->request->post, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -87,9 +88,9 @@ class Request implements  RequestInterface, InjectionAwareInterface
      * @param mixed $defaultValue
      * @return mixed
      */
-    public function getQuery($name = null, $filters = null, $defaultValue = null)
+    public function getQuery($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        // TODO: Implement getQuery() method.
+        return $this->getHelper($this->request->get, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -122,7 +123,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function hasPost($name)
     {
-        // TODO: Implement hasPost() method.
+        return isset($this->request->post[$name]);
     }
 
     /**
@@ -133,7 +134,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function hasPut($name)
     {
-        // TODO: Implement hasPut() method.
+        return isset($this->request->put[$name]);
     }
 
     /**
@@ -144,7 +145,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function hasQuery($name)
     {
-        // TODO: Implement hasQuery() method.
+        return isset($this->request->get[$name]);
     }
 
     /**
@@ -155,7 +156,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function hasServer($name)
     {
-        // TODO: Implement hasServer() method.
+        return isset($this->request->server[$name]);
     }
 
     /**
@@ -166,7 +167,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getHeader($header)
     {
-        return $this->request->header($header);
+        return $this->request->header[$header];
     }
 
     /**
@@ -186,7 +187,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function isAjax()
     {
-        // TODO: Implement isAjax() method.
+        return isset($this->request->header["x_requested_with"]) && $this->request->header["x_requested_with"] === "XMLHttpRequest";
     }
 
     /**
@@ -246,7 +247,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getHttpHost()
     {
-        // TODO: Implement getHttpHost() method.
+        return $this->request->header['host'];
     }
 
     /**
@@ -257,7 +258,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getClientAddress($trustForwardedHeader = false)
     {
-        // TODO: Implement getClientAddress() method.
+        return $this->request->server['remote_addr'];
     }
 
     /**
@@ -331,7 +332,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function isPut()
     {
-        // TODO: Implement isPut() method.
+        return $this->isMethod('PUT');
     }
 
     /**
@@ -341,7 +342,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function isHead()
     {
-        // TODO: Implement isHead() method.
+        return $this->isMethod('HEAD');
     }
 
     /**
@@ -351,7 +352,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function isDelete()
     {
-        // TODO: Implement isDelete() method.
+        return $this->isMethod('DELETE');
     }
 
     /**
@@ -361,7 +362,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function isOptions()
     {
-        // TODO: Implement isOptions() method.
+        return $this->isMethod('OPTIONS');
     }
 
     /**
@@ -403,7 +404,8 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getAcceptableContent()
     {
-        // TODO: Implement getAcceptableContent() method.
+        // TODO: split $this->request->header['accept']
+        return [];
     }
 
     /**
@@ -480,4 +482,42 @@ class Request implements  RequestInterface, InjectionAwareInterface
     {
         return $this->request->server['request_uri'];
     }
+
+
+    /**
+     * Helper to get data from superglobals, applying filters if needed.
+     * If no parameters are given the superglobal is returned.
+     */
+    protected function getHelper(array $source, $name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
+	{
+		if ($name === null) {
+			return $source;
+		}
+
+        $value = isset($source[$name]) ? $source[$name] : null;
+
+        if (!$value) {
+            return $defaultValue;
+        }
+
+		if ($filters !== null) {
+            $filter = $this->_filter;
+			if (!is_object($filter)) {
+                $dependencyInjector = $this->_dependencyInjector;
+                if (!is_object($dependencyInjector)) {
+                    throw new Exception("A dependency injection object is required to access the 'filter' service");
+                }
+				$filter = $dependencyInjector->getShared("filter");
+				$this->_filter = $filter;
+			}
+
+			$value = $filter->sanitize($value, $filters, $noRecursive);
+		}
+
+		if (empty($value) && $notAllowEmpty === true) {
+            return $defaultValue;
+        }
+
+		return $value;
+	}
 }
