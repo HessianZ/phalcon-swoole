@@ -1,5 +1,5 @@
 # Phalcon-Swoole
-
+Phalcon很快，Swoole也很快，那他们俩加一块岂不是快上加快？这个项目的目的正是要让他俩成为一对亲密的好基友，解决Phalcon在Swoole环境下运行所遇到的各种问题。
 
 ## Phalcon Framework
 Phalcon is an open source web framework delivered as a C extension for the PHP language providing high performance and lower resource consumption.
