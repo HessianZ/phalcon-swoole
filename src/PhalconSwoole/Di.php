@@ -1,9 +1,9 @@
 <?php
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 use Phalcon\Di\Service;
 
-use HessianZ\PhalconSwoole\Session\Adapter\None as SessionAdapter;
+use PhalconSwoole\Session\Adapter\Files as SessionAdapter;
 
 class Di extends \Phalcon\Di\FactoryDefault
 {
@@ -11,16 +11,15 @@ class Di extends \Phalcon\Di\FactoryDefault
     /**
      * Phalcon\Di\FactoryDefault constructor
      */
-    public function __construct(\swoole_http_request $raw_request, \swoole_http_response $raw_response)
-    public function __construct(\swoole_http_server $swooleServer,
+    public function __construct(\swoole_http_request $swooleRequest, \swoole_http_response $swooleResponse)
     {
         parent::__construct();
 
         $request  = new Request();
         $response = new Response();
 
-        $request->setSwooleRequest($raw_request);
-        $response->setSwooleResponse($raw_response);
+        $request->setSwooleRequest($swooleRequest);
+        $response->setSwooleResponse($swooleResponse);
 
         $this->setShared('request', $request);
         $this->setShared('response', $response);
