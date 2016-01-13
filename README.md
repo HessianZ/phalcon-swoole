@@ -53,8 +53,8 @@ $app->setDI($di);
 ```php
 use Phalcon\Http\ResponseInterface;
 
-use HessianZ\PhalconSwoole\MicroApp;
-use HessianZ\PhalconSwoole\Di;
+use PhalconSwoole\MicroApp;
+use PhalconSwoole\Di;
 
 define('BASE_DIR', dirname(__DIR__));
 define('APP_PATH', BASE_DIR . '/app');
