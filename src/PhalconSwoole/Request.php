@@ -6,7 +6,7 @@
  * Time: 15:38
  */
 
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 use Phalcon\Di\InjectionAwareInterface;
 use Phalcon\Http\RequestInterface;

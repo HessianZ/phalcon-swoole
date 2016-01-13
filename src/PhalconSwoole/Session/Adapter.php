@@ -8,7 +8,7 @@
  */
 
 
-namespace HessianZ\PhalconSwoole\Session;
+namespace PhalconSwoole\Session;
 
 
 use Phalcon\Di\InjectionAwareInterface;

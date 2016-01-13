@@ -6,7 +6,7 @@
  * Time: 15:38
  */
 
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 class Response extends \Phalcon\Http\Response
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 class MicroApp extends \Phalcon\Mvc\Micro
 {

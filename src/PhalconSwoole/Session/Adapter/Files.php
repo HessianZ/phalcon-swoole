@@ -8,9 +8,9 @@
 
 
 
-namespace HessianZ\PhalconSwoole\Session\Adapter;
+namespace PhalconSwoole\Session\Adapter;
 
-use HessianZ\PhalconSwoole\Session\Adapter;
+use PhalconSwoole\Session\Adapter;
 
 class Files extends Adapter {
 

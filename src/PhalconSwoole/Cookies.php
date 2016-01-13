@@ -6,7 +6,7 @@
  * Time: 13:09
  */
 
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 class Cookies extends \Phalcon\Http\Response\Cookies
 {

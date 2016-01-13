@@ -12,6 +12,7 @@ class Di extends \Phalcon\Di\FactoryDefault
      * Phalcon\Di\FactoryDefault constructor
      */
     public function __construct(\swoole_http_request $raw_request, \swoole_http_response $raw_response)
+    public function __construct(\swoole_http_server $swooleServer,
     {
         parent::__construct();
 

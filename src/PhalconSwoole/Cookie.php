@@ -6,7 +6,7 @@
  * Time: 13:11
  */
 
-namespace HessianZ\PhalconSwoole;
+namespace PhalconSwoole;
 
 use Phalcon\Http\Response\Exception;
 
