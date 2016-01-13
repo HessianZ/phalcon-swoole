@@ -12,6 +12,8 @@ class Cookies extends \Phalcon\Http\Response\Cookies
 {
     protected $cookieClass = Cookie::class;
 
+    protected $_useEncryption = false;
+
     /**
      * @return mixed
      */
@@ -99,27 +101,26 @@ class Cookies extends \Phalcon\Http\Response\Cookies
         /**
          * Create the cookie if the it does not exist
          */
-        $cookie = $this->_dependencyInjector->get($this->cookieClass, [$name]);
         $dependencyInjector = $this->_dependencyInjector;
 
-        if (is_object($dependencyInjector)) {
+        $cookie = $dependencyInjector->get($this->cookieClass, [$name]);
 
-            /**
-             * Pass the DI to created cookies
-             */
-            $cookie->setDi($dependencyInjector);
+        /**
+         * Pass the DI to created cookies
+         */
+        $cookie->setDi($dependencyInjector);
 
-            $encryption = $this->_useEncryption;
+        $encryption = $this->_useEncryption;
 
-            /**
-             * Enable encryption in the cookie
-             */
-            if ($encryption) {
-                $cookie->useEncryption($encryption);
-            }
+        /**
+         * Enable encryption in the cookie
+         */
+        if ($encryption) {
+            $cookie->useEncryption($encryption);
         }
 
         $this->_cookies[$name] = $cookie;
+
         return $cookie;
     }
 
@@ -140,7 +141,7 @@ class Cookies extends \Phalcon\Http\Response\Cookies
          * Check the swoole
          */
         $request = $this->_dependencyInjector->get("request");
-        if (isset($request->cookie[$name])) {
+        if ($request->hasCookie($name)) {
             return true;
         }
 

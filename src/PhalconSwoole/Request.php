@@ -64,7 +64,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function get($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        return $this->getQuery($name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
+        return $this->getHelper(INPUT_REQUEST, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -77,7 +77,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getPost($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        return $this->getHelper($this->request->post, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
+        return $this->getHelper(INPUT_POST, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -90,7 +90,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getQuery($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
     {
-        return $this->getHelper($this->request->get, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
+        return $this->getHelper(INPUT_GET, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -102,6 +102,11 @@ class Request implements  RequestInterface, InjectionAwareInterface
     public function getServer($name)
     {
         return $this->request->server[$name];
+    }
+
+    public function getCookie($name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
+    {
+        return $this->getHelper(INPUT_COOKIE, $name, $filters, $defaultValue, $notAllowEmpty, $noRecursive);
     }
 
     /**
@@ -157,6 +162,11 @@ class Request implements  RequestInterface, InjectionAwareInterface
     public function hasServer($name)
     {
         return isset($this->request->server[$name]);
+    }
+
+    public function hasCookie($name)
+    {
+        return isset($this->request->cookie[$name]);
     }
 
     /**
@@ -217,7 +227,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function getRawBody()
     {
-        // TODO: Implement getRawBody() method.
+        return $this->request->rawContent();
     }
 
     /**
@@ -398,7 +408,7 @@ class Request implements  RequestInterface, InjectionAwareInterface
      */
     public function hasFiles($onlySuccessful = false)
     {
-        // TODO: Implement hasFiles() method.
+        return isset($this->request->files);
     }
 
     /**
@@ -513,8 +523,26 @@ class Request implements  RequestInterface, InjectionAwareInterface
      * Helper to get data from superglobals, applying filters if needed.
      * If no parameters are given the superglobal is returned.
      */
-    protected function getHelper(array $source, $name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
+    protected function getHelper($sourceType, $name = null, $filters = null, $defaultValue = null, $notAllowEmpty = false, $noRecursive = false)
 	{
+        switch ($sourceType) {
+            case INPUT_REQUEST:
+            case INPUT_GET:
+                $source = isset($this->request->get) ? $this->request->get : [];
+                break;
+            case INPUT_POST:
+                $source = isset($this->request->post) ? $this->request->post : [];
+                break;
+            case INPUT_COOKIE:
+                $source = isset($this->request->cookie) ? $this->request->cookie : [];
+                break;
+            case INPUT_SERVER:
+                $source = isset($this->request->server) ? $this->request->server : [];
+                break;
+            default:
+                $source = [];
+        }
+
 		if ($name === null) {
 			return $source;
 		}

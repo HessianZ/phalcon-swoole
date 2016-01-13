@@ -38,4 +38,22 @@ class None extends Adapter {
         return false;
     }
 
+    /**
+     * Removes a session variable from an application context
+     *
+     * @param string $index
+     */
+    public function remove($index)
+    {
+    }
+
+    /**
+     * Destroys the active session
+     *
+     * @param bool $removeData
+     * @return bool
+     */
+    public function destroy($removeData = false)
+    {
+    }
 }
