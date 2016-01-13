@@ -15,31 +15,16 @@ use HessianZ\PhalconSwoole\Session\Adapter;
 class Files extends Adapter {
 
     protected $_filenamePrefix = 'psess_';
-    protected $_savePath;
     protected $_data = [];
-
-    public function __construct($options = [])
-    {
-        parent::__construct($options);
-
-        if (isset($options['save_path'])) {
-            $this->_savePath = $options['save_path'];
-        } else {
-            $this->_savePath = ini_get('session.save_path') ?: sys_get_temp_dir();
-        }
-    }
 
     function __destruct()
     {
-        echo "session destruct\n";
-
         if ($this->_started) {
             $this->sync();
         }
 
         unset($this->_data);
     }
-
 
     /**
      * @param string $index
@@ -110,8 +95,20 @@ class Files extends Adapter {
             return false;
         }
 
-        $filename = $this->getFilename();
+        // gc
+        $gcProbability = $this->getOption('gc_probability', 1);
+        if ($gcProbability) {
+            $gcDivisor = $this->getOption('gc_divisor', 100);
+            $rand = mt_rand(1, $gcDivisor);
 
+            if ($rand <= $gcProbability) {
+                $maxLifetime = $this->getOption('gc_maxlifetime', 1440);
+                $this->gc($maxLifetime);
+            }
+        }
+
+        // load
+        $filename = $this->getFilename();
         if (file_exists($filename)) {
             $serilizedData = file_get_contents($filename);
 
@@ -123,7 +120,8 @@ class Files extends Adapter {
 
     protected function getFilename()
     {
-        return $this->_savePath . DIRECTORY_SEPARATOR . $this->_filenamePrefix . $this->_id;
+        $savePath = $this->getOption('save_path');
+        return $savePath . DIRECTORY_SEPARATOR . $this->_filenamePrefix . $this->_id;
     }
 
     /**
@@ -138,8 +136,8 @@ class Files extends Adapter {
 
     protected function gc($maxlifetime)
     {
-        // TODO: 那么问题来了, 什么时候gc呢? swoole开个timer?
-        $pattern = $this->_savePath . DIRECTORY_SEPARATOR . $this->_filenamePrefix . '*';
+        $savePath = $this->getOption('save_path');
+        $pattern = $savePath . DIRECTORY_SEPARATOR . $this->_filenamePrefix . '*';
         foreach (glob($pattern) as $file) {
             if (filemtime($file) + $maxlifetime < time() && file_exists($file)) {
                 unlink($file);

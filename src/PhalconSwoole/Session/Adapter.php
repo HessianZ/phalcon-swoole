@@ -30,20 +30,39 @@ abstract class Adapter implements AdapterInterface, InjectionAwareInterface
     protected $_status = self::SESSION_NONE;
     protected $_dependencyInjector;
 
+    protected static $_defaults;
+
     /**
      * Adapter constructor.
      * @param array $options
      */
     public function __construct($options)
     {
-        if (isset($options['name'])) {
-            $this->_name = $options['name'];
-        } else {
-            // Default session name
-            $this->_name = ini_get('session.name');
+        if (static::$_defaults === null) {
+            static::readDefaults();
         }
 
         $this->_options = $options;
+
+        $this->_name = $this->getOption('name');
+    }
+
+    public static function readDefaults()
+    {
+        $iniSettings = ini_get_all('session', false);
+
+        $settings = [];
+        foreach ($iniSettings as $key => $value) {
+            $shortKey = str_replace('session.', '', $key);
+            $settings[$shortKey] = $value;
+        }
+        unset($iniSettings);
+
+        if (empty($settings['save_path'])) {
+            $settings['save_path'] = sys_get_temp_dir();
+        }
+
+        self::$_defaults = $settings;
     }
 
     /**
@@ -118,7 +137,7 @@ abstract class Adapter implements AdapterInterface, InjectionAwareInterface
     public function regenerateId($deleteOldSession = true)
     {
         if (empty($this->_dependencyInjector)) {
-            throw new Exception("A dependency injection object is required to access the 'request' service");
+            throw new Exception("A dependency injection object is required to access the 'request,cookies' service");
         }
 
         if ($deleteOldSession) {
@@ -126,6 +145,7 @@ abstract class Adapter implements AdapterInterface, InjectionAwareInterface
         }
 
         $request = $this->_dependencyInjector->getShared('request');
+        $cookies = $this->_dependencyInjector->getShared('cookies');
 
         $ip = $request->getClientAddress(true);
         $ua = $request->getUserAgent();
@@ -135,6 +155,14 @@ abstract class Adapter implements AdapterInterface, InjectionAwareInterface
 
         $id = md5(uniqid($prefix, true));
         $this->setId($id);
+
+        $cookieLifetime = $this->getOption('cookie_lifetime');
+        $cookiePath = $this->getOption('cookie_path');
+        $cookieDomain = $this->getOption('cookie_domain');
+        $cookieSecure = !!$this->getOption('cookie_secure');
+        $cookieHttponly = !!$this->getOption('cookie_httponly');
+
+        $cookies->set($this->_name, $id, $cookieLifetime, $cookiePath, $cookieSecure, $cookieDomain, $cookieHttponly);
 
         return $this;
     }
@@ -182,6 +210,19 @@ abstract class Adapter implements AdapterInterface, InjectionAwareInterface
     public function getOptions()
     {
         return $this->_options;
+    }
+
+    public function getOption($name, $default = null)
+    {
+        if (isset($this->_options[$name])) {
+            return $this->_options[$name];
+        }
+
+        if (isset(static::$_defaults[$name])) {
+            return static::$_defaults[$name];
+        }
+
+        return $default;
     }
 
     /**
