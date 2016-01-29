@@ -1,6 +1,32 @@
 # Phalcon-Swoole
 Phalcon很快，Swoole也很快，那他们俩加一块岂不是快上加快？这个项目的目的正是要让他俩成为一对亲密的好基友，解决Phalcon在Swoole环境下运行所遇到的各种问题。
 
+# Question
+在最初，我是希望整个运行过程是异步非阻塞的，但是如此一来改造难度和使用的复杂度会高很多，那时候phalcon就不是phalcon了，意义不大。
+而在同步阻塞模式下swoole_http_server->setGlobal就已经能自动重写超全局变量GPCS，框架里要做的可能只有session的处理了。
+
+### 同步阻塞函数
+* mysql、mysqli、pdo以及其他DB操作函数
+* sleep、usleep
+* curl
+* stream、socket扩展的函数
+* swoole_client同步模式
+* memcache、redis扩展函数
+* file_get_contents/fread等文件读取函数
+* swoole_server->taskwait
+* swoole_server->sendwait
+* swoole_server的PHP代码中有上述函数，Server就是同步服务器
+* 代码中没有上述函数就是异步服务器
+
+### 异步非阻塞函数
+* swoole_client异步模式
+* mysql-async库
+* redis-async库
+* swoole_timer_tick/swoole_timer_after
+* swoole_event系列函数
+* swoole_table/swoole_atomic/swoole_buffer
+* swoole_server->task/finish函数
+
 ## Phalcon Framework
 Phalcon is an open source web framework delivered as a C extension for the PHP language providing high performance and lower resource consumption.
 
